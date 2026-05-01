@@ -3,8 +3,10 @@ package br.com.douglas.controller;
 import br.com.douglas.dto.ExchangeDto;
 import br.com.douglas.environment.InstanceInformationService;
 import br.com.douglas.model.Book;
+import br.com.douglas.proxy.ExchangeProxy;
 import br.com.douglas.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -27,24 +29,14 @@ public class BookController {
     BookRepository repository;
 
     @Autowired
-    RestTemplate restTemplate;
+    ExchangeProxy exchangeProxy;
 
     @GetMapping(value = "/{id}/{currency}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Book> findBook(@PathVariable("id") Long id, @PathVariable("currency") String currency) {
         return repository.findById(id)
                 .<ResponseEntity<Book>>map(book -> {
-                    HashMap<String, String> params = new HashMap<>();
-                    params.put("amount", book.getPrice().toString());
-                    params.put("from", "USD");
-                    params.put("to", currency);
 
-                    var exchange = restTemplate
-                            .getForEntity("http://localhost:8000/exchange-service/{amount}/{from}/{to}", ExchangeDto.class, params)
-                            .getBody();
-
-                    if (exchange == null) {
-                        return ResponseEntity.<Book>status(HttpStatus.BAD_GATEWAY).build();
-                    }
+                    ExchangeDto exchange = exchangeProxy.getExchange(book.getPrice(), "USD", currency);
 
                     book.setCurrency(currency);
                     book.setPrice(exchange.getConvertedValue());
