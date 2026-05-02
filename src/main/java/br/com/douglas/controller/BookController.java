@@ -5,6 +5,8 @@ import br.com.douglas.environment.InstanceInformationService;
 import br.com.douglas.model.Book;
 import br.com.douglas.proxy.ExchangeProxy;
 import br.com.douglas.repository.BookRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpStatus;
@@ -18,6 +20,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
 
+@Tag(name = "Book Endpoint")
 @RestController
 @RequestMapping("book-service")
 public class BookController {
@@ -31,6 +34,7 @@ public class BookController {
     @Autowired
     ExchangeProxy exchangeProxy;
 
+    @Operation(summary = "Find a specific book by ID")
     @GetMapping(value = "/{id}/{currency}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Book> findBook(@PathVariable("id") Long id, @PathVariable("currency") String currency) {
         return repository.findById(id)
