@@ -3,7 +3,7 @@ server:
 eureka:
   client:
     service-url:
-      defaultZone: http://localhost:8761/eureka
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka}
 resilience4j:
   retry:
     instances:
@@ -39,6 +39,8 @@ spring:
     tracing:
       sampling:
         probability: 1.0 #100%
+  zipkin:
+    base-url: ${SPRING_ZIPIKIN_BASEURL:http://localhost:9411}
 springdoc:
   api-docs:
     path: /book-service/v3/api-docs
