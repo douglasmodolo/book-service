@@ -23,5 +23,15 @@ jobs:
         java-version: '21'
         distribution: 'adopt'
 
-    - name: Build Book Microservice Docker Image
+    - name: Build Book Microservice JAR
       run: mvn clean package
+
+    - name: Build Book Microservice Docker Image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/book-service:${{ github.sha }} .
+        docker tag ${{ secrets.DOCKER_USERNAME }}/book-service:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/book-service:latest
+
+    - name: Push Book Microservice Docker Image
+      run: |
+        docker push ${{ secrets.DOCKER_USERNAME }}/book-service:${{ github.sha }}
+        docker push ${{ secrets.DOCKER_USERNAME }}/book-service:latest    
